@@ -1,1 +1,1 @@
-FROM git.hanse.de/vimaster/hackertours-admin@sha256:1f1a8aa2fc69c6cdc82eff09c1d9577b66a471a035dac3169eb41f7bbabc97bf
+FROM git.hanse.de/vimaster/hackertours-admin@sha256:31f9f9bf3e46ebcd92047c3e2375ee644a1f911717e8c9907b72847f6b3752ea
