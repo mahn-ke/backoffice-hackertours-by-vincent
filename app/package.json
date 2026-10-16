@@ -1,0 +1,6 @@
+{
+    "name": "backoffice-hackertours-by-vincent",
+    "scripts": {
+        "start": "node main.js"
+    }
+}
