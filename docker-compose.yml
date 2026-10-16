@@ -1,16 +1,62 @@
 #http
-version: "3.8"
-
 services:
-  app:
-    image: ghcr.io/mahn-ke/backoffice-hackertours-by-vincent:latest
-    restart: on-failure:5
+  db:
+    image: postgres:18
+    restart: unless-stopped
     environment:
-      - PORT=3000
-    ports:
-      - "3019:3000"
+      POSTGRES_DB: backoffice
+      POSTGRES_USER: backoffice
+      POSTGRES_PASSWORD_FILE: /run/backoffice-secrets/database_password
+    volumes:
+      - db:/var/lib/postgresql
+      - runtime-secrets:/run/backoffice-secrets:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
-      interval: 30s
+      test: ["CMD-SHELL", "pg_isready -U backoffice -d backoffice"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    image: git.hanse.de/vimaster/hackertours-admin@sha256:1f1a8aa2fc69c6cdc82eff09c1d9577b66a471a035dac3169eb41f7bbabc97bf
+    restart: unless-stopped
+    entrypoint: ["python", "/bootstrap/entrypoint.py"]
+    command: []
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: backoffice.hackertours.by.vincent.mahn.ke,localhost,127.0.0.1
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://backoffice.hackertours.by.vincent.mahn.ke
+      DJANGO_BEHIND_PROXY: "1"
+      DJANGO_TIME_ZONE: Europe/Berlin
+      HANDOUT_URL: http://handout-hackertours-app-1:3000
+      GOTENBERG_URL: http://handout-hackertours-gotenberg-1:3000
+      HANDOUT_PROVIDER: SH
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3019:8000"
+    volumes:
+      - media:/data/media
+      - runtime-secrets:/run/backoffice-secrets:ro
+      - ./docker/entrypoint.py:/bootstrap/entrypoint.py:ro
+    networks:
+      - default
+      - handouts
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/', timeout=5).read(1)"]
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 20
+      start_period: 60s
+
+networks:
+  handouts:
+    external: true
+    name: handout-hackertours_default
+
+volumes:
+  db:
+  media:
+  runtime-secrets:
+    external: true
+    name: backoffice-hackertours-secrets
