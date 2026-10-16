@@ -6,11 +6,11 @@ services:
     image: ghcr.io/mahn-ke/backoffice-hackertours-by-vincent:latest
     restart: on-failure:5
     environment:
-      - PORT=3019
+      - PORT=3000
     ports:
       - "3019:3000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3019/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
       interval: 30s
       timeout: 10s
       retries: 5
