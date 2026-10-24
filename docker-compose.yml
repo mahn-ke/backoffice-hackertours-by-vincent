@@ -17,7 +17,7 @@ services:
       retries: 20
 
   app:
-    image: git.hanse.de/vimaster/hackertours-admin@sha256:31f9f9bf3e46ebcd92047c3e2375ee644a1f911717e8c9907b72847f6b3752ea
+    image: ghcr.io/mahn-ke/backoffice-hackertours-by-vincent:latest
     restart: unless-stopped
     entrypoint: ["python", "/bootstrap/entrypoint.py"]
     command: []
@@ -38,7 +38,6 @@ services:
     volumes:
       - media:/data/media
       - runtime-secrets:/run/backoffice-secrets:ro
-      - ./docker/entrypoint.py:/bootstrap/entrypoint.py:ro
     networks:
       - default
       - handouts
